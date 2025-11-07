@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>Seni Seviyorum</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: 'Georgia', serif;
+            background: #000;
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: none;
+        }
+
+        #videoContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 1.5s ease-out;
+        }
+
+        #videoContainer.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #player {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Uzay Arka Planı */
+        .space-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+            z-index: 1;
+        }
+
+        /* Yıldızlar */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle linear infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        /* Nebula efekti */
+        .nebula {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            opacity: 0.4;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(147, 51, 234, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(236, 72, 153, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.2) 0%, transparent 60%);
+            filter: blur(60px);
+            animation: nebulaMove 20s ease-in-out infinite;
+        }
+
+        @keyframes nebulaMove {
+            0%, 100% {
+                transform: scale(1) rotate(0deg);
+            }
+            50% {
+                transform: scale(1.1) rotate(5deg);
+            }
+        }
+
+        /* Kalpler */
+        .hearts-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .heart {
+            position: absolute;
+            bottom: -50px;
+            font-size: 2rem;
+            opacity: 0;
+            animation: floatUp linear forwards;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg) scale(0.5);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 0.9;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-120vh) translateX(var(--drift)) rotate(360deg) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* Mesaj Konteyneri */
+        .message-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            text-align: center;
+            opacity: 0;
+            animation: fadeInMessage 2s ease-in 1s forwards;
+        }
+
+        @keyframes fadeInMessage {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .message-text {
+            font-size: 2.8rem;
+            color: #fff;
+            text-shadow: 
+                0 0 20px rgba(236, 72, 153, 0.8),
+                0 0 40px rgba(236, 72, 153, 0.5),
+                0 0 60px rgba(236, 72, 153, 0.3);
+            line-height: 1.8;
+            padding: 3rem 4rem;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            border: 2px solid rgba(236, 72, 153, 0.3);
+            animation: glow 3s ease-in-out infinite;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 
+                    0 0 30px rgba(236, 72, 153, 0.4),
+                    0 0 60px rgba(236, 72, 153, 0.2),
+                    inset 0 0 30px rgba(236, 72, 153, 0.1);
+            }
+            50% {
+                box-shadow: 
+                    0 0 40px rgba(236, 72, 153, 0.6),
+                    0 0 80px rgba(236, 72, 153, 0.3),
+                    inset 0 0 40px rgba(236, 72, 153, 0.15);
+            }
+        }
+
+        /* Skip butonu */
+        .skip-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1001;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .skip-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* Tablet ve küçük ekranlar */
+        @media (max-width: 1024px) {
+            .message-text {
+                font-size: 2.4rem;
+                padding: 2.5rem 3rem;
+            }
+        }
+
+        /* Mobil cihazlar (genel) */
+        @media (max-width: 768px) {
+            .message-text {
+                font-size: 2rem;
+                padding: 2rem 2.5rem;
+                line-height: 1.6;
+                letter-spacing: 0.5px;
+            }
+            
+            .heart {
+                font-size: 1.8rem;
+            }
+
+            .skip-button {
+                bottom: 20px;
+                right: 20px;
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+        }
+
+        /* Xiaomi Redmi Note 13 Pro ve benzeri (1080 x 2400 piksel, ~20:9) */
+        @media (max-width: 430px) {
+            body {
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .message-text {
+                font-size: 1.6rem;
+                padding: 1.8rem 2rem;
+                line-height: 1.7;
+                border-radius: 25px;
+                max-width: 90vw;
+                letter-spacing: 0.3px;
+            }
+            
+            .heart {
+                font-size: 1.6rem;
+            }
+
+            .nebula {
+                opacity: 0.3;
+            }
+
+            .skip-button {
+                bottom: 15px;
+                right: 15px;
+                padding: 10px 18px;
+                font-size: 12px;
+            }
+        }
+
+        /* Çok küçük ekranlar ve eski telefonlar */
+        @media (max-width: 375px) {
+            .message-text {
+                font-size: 1.4rem;
+                padding: 1.5rem 1.8rem;
+                max-width: 92vw;
+            }
+            
+            .heart {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* Landscape (yatay) mod */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .message-text {
+                font-size: 1.3rem;
+                padding: 1.2rem 1.8rem;
+                line-height: 1.5;
+            }
+
+            .message-container {
+                top: 45%;
+            }
+        }
+
+        /* Yüksek çözünürlüklü ekranlar (2K, 4K) */
+        @media (min-resolution: 2dppx) {
+            .star {
+                box-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+            }
+
+            .message-text {
+                text-shadow: 
+                    0 0 25px rgba(236, 72, 153, 0.9),
+                    0 0 45px rgba(236, 72, 153, 0.6),
+                    0 0 65px rgba(236, 72, 153, 0.4);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="videoContainer">
+        <div id="player"></div>
+        <button class="skip-button" onclick="skipVideo()">Videoyu Geç →</button>
+    </div>
+
+    <div class="space-background"></div>
+    <div class="nebula"></div>
+    <div class="stars" id="stars"></div>
+    <div class="hearts-container" id="heartsContainer"></div>
+    
+    <div class="message-container" id="message" style="display: none;">
+        <div class="message-text">
+            Ben yanındayım bitanem 💖<br>
+            Seni çok seviyorum.
+        </div>
+    </div>
+
+    <script>
+        let player;
+        let animationStarted = false;
+
+        // YouTube IFrame API'yi yükle
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                videoId: 'Pt37P8qnZGc',
+                playerVars: {
+                    autoplay: 1,
+                    controls: 1,
+                    modestbranding: 1,
+                    rel: 0,
+                    showinfo: 0,
+                    playsinline: 1
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            event.target.playVideo();
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                startAnimation();
+            }
+        }
+
+        function skipVideo() {
+            startAnimation();
+        }
+
+        function startAnimation() {
+            if (animationStarted) return;
+            animationStarted = true;
+
+            const videoContainer = document.getElementById('videoContainer');
+            videoContainer.classList.add('fade-out');
+            
+            setTimeout(() => {
+                videoContainer.style.display = 'none';
+                createStars();
+                startHearts();
+                showMessage();
+            }, 1500);
+        }
+
+        // Yıldızlar oluştur
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            // Mobil cihazlarda performans için daha az yıldız
+            const isMobile = window.innerWidth < 768;
+            const starCount = isMobile ? 100 : 200;
+
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                const size = Math.random() * 2 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Kalpler başlat
+        function startHearts() {
+            const heartsContainer = document.getElementById('heartsContainer');
+            const heartColors = ['#ff69b4', '#ff1493', '#ff85c1', '#ffc0cb', '#ff6b9d'];
+            
+            // Mobil cihazlarda daha az sıklıkta kalp oluştur
+            const isMobile = window.innerWidth < 768;
+            const interval = isMobile ? 1200 : 800;
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.textContent = '💗';
+                
+                const randomColor = heartColors[Math.floor(Math.random() * heartColors.length)];
+                heart.style.color = randomColor;
+                heart.style.left = Math.random() * 100 + '%';
+                
+                const duration = Math.random() * 5 + 8;
+                const drift = (Math.random() - 0.5) * 200;
+                heart.style.animationDuration = duration + 's';
+                heart.style.setProperty('--drift', drift + 'px');
+                
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, duration * 1000);
+            }, interval);
+        }
+
+        function showMessage() {
+            setTimeout(() => {
+                document.getElementById('message').style.display = 'block';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
